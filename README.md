@@ -1,0 +1,1 @@
+This assignment is to extract the PPG features and estimate SpO2 after extracting the good signals from a given PPG signal.
