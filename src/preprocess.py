@@ -26,7 +26,7 @@ def bandpass_filter(sig, fs=500, lowcut=0.75, highcut=5, order=3):
         lowcut (float): Low cutoff frequency (Hz).
         highcut (float): High cutoff frequency (Hz).
         order (int): Filter order.
-    nyq: Nyquist Frequency
+    nyq: nyquist frequency
     """
     nyq = 0.5 * fs
     low, high = lowcut / nyq, highcut / nyq

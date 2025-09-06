@@ -4,7 +4,6 @@ import pandas as pd
 def compute_ac_dc(signal):
     """
     Compute AC (pulsatile amplitude) and DC (baseline) for a signal segment.
-    Assumes 'signal' is a 1D array corresponding to one beat or window.
     """
     dc = np.mean(signal)  # baseline
     ac = np.max(signal) - np.min(signal)  # peak-to-peak amplitude

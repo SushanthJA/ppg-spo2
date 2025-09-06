@@ -20,22 +20,39 @@ def detect_dicrotic_notch(ppg, systolic_peaks):
     return np.array(notches)
 
 
-def detect_diastolic_peaks(ppg, notches, systolic_peaks):
+# def detect_diastolic_peaks(ppg, notches, systolic_peaks):
+#     diastolic_peaks = []
+#     for i in range(len(notches)):
+#         rr_interval = systolic_peaks[i+1] - systolic_peaks[i]
+#         local_idx = notches[i]
+#         search_end = systolic_peaks[i+1] - int(0.15*rr_interval) # unrealistic to have diastolic peak after this
+#         segment = ppg[notches[i]:search_end]
+
+#         if len(segment) > 0:
+#             for j in range(len(segment)-1):
+#                 if segment.iloc[j+1] > segment.iloc[j]:
+#                     local_idx = j+1
+#                 else:
+#                     break
+#             dia_idx = local_idx + notches[i]
+#             diastolic_peaks.append(dia_idx)
+#     return np.array(diastolic_peaks)
+
+
+def detect_diastolic_peaks(ppg, notches, systolic_peaks, fs=500, min_prom=0.02):
     diastolic_peaks = []
     for i in range(len(notches)):
-        local_idx = notches[i]
-        segment = ppg[notches[i]:systolic_peaks[i+1]]
+        segment = ppg.iloc[notches[i]:systolic_peaks[i+1]]
 
-        if len(segment) > 0:
-            for j in range(len(segment)-1):
-                if segment.iloc[j+1] > segment.iloc[j]:
-                    local_idx = j+1
-                else:
-                    break
-            dia_idx = local_idx + notches[i]
+        # search peaks in this window
+        peaks, _ = find_peaks(segment, prominence=min_prom)
+
+        if len(peaks) > 0:
+            # take the first peak after notch
+            dia_idx = peaks[0] + notches[i]
             diastolic_peaks.append(dia_idx)
-    return np.array(diastolic_peaks)
 
+    return np.array(diastolic_peaks)
 
 def compute_heart_rate(systolic_peaks, fs=500):
     if len(systolic_peaks) < 2:
