@@ -34,7 +34,7 @@ def bandpass_filter(sig, fs=500, lowcut=0.75, highcut=5, order=3):
     return filtfilt(b, a, sig)
 
 
-def preprocess_ppg(df, channels=['pleth_1', 'pleth_2'], fs=500):
+def preprocess_ppg(df, channels=['pleth_1', 'pleth_2'], fs=500, order=3):
     """
     Apply DC removal and bandpass filtering to PPG channels.
     Returns the DataFrame with pleth_filtered columns.
@@ -43,7 +43,7 @@ def preprocess_ppg(df, channels=['pleth_1', 'pleth_2'], fs=500):
         if ch in df.columns:
             sig = df[ch].values
             sig = remove_dc(sig, window=int(0.5 * fs))
-            sig = bandpass_filter(sig, fs=fs)
+            sig = bandpass_filter(sig, fs=fs, order=order)
             df[ch + "_filtered"] = sig
     return df
 

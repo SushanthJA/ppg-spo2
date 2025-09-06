@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
 
@@ -22,11 +23,17 @@ def detect_dicrotic_notch(ppg, systolic_peaks):
 def detect_diastolic_peaks(ppg, notches, systolic_peaks):
     diastolic_peaks = []
     for i in range(len(notches)):
-        if i+1 < len(systolic_peaks):
-            segment = ppg[notches[i]:systolic_peaks[i+1]]
-            if len(segment) > 0:
-                dia_idx = np.argmax(segment) + notches[i]
-                diastolic_peaks.append(dia_idx)
+        local_idx = notches[i]
+        segment = ppg[notches[i]:systolic_peaks[i+1]]
+
+        if len(segment) > 0:
+            for j in range(len(segment)-1):
+                if segment.iloc[j+1] > segment.iloc[j]:
+                    local_idx = j+1
+                else:
+                    break
+            dia_idx = local_idx + notches[i]
+            diastolic_peaks.append(dia_idx)
     return np.array(diastolic_peaks)
 
 
@@ -93,3 +100,31 @@ def build_feature_dataframe(ppg, fs=500):
 
     df_features = pd.DataFrame(features)
     return df_features
+
+
+def plot_ppg_with_features(ppg, fs, systolic_peaks, diastolic_peaks, notches, seconds=5, title="PPG (first {seconds} seconds)"):
+    
+    max_samples = int(seconds * fs)
+    t = np.arange(len(ppg)) / fs
+    ppg = ppg[:max_samples]
+    t = t[:max_samples]
+
+    systolic_peaks = systolic_peaks[systolic_peaks < max_samples]
+    diastolic_peaks = diastolic_peaks[diastolic_peaks < max_samples]
+    notches = notches[notches < max_samples]
+
+    # Plot
+    plt.figure(figsize=(15, 6))
+    plt.plot(t, ppg, label="Filtered PPG", color="black", linewidth=1)
+
+    plt.plot(systolic_peaks / fs, ppg[systolic_peaks], "ro", label="Systolic peaks")
+    plt.plot(diastolic_peaks / fs, ppg[diastolic_peaks], "go", label="Diastolic peaks")
+    plt.plot(notches / fs, ppg[notches], "bo", label="Dicrotic notches")
+
+    plt.title(f"{title} (first {seconds}s)")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Amplitude")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
