@@ -36,7 +36,7 @@ def estimate_spo2(r, A=110.0, B=25.0):
     return spo2
 
 
-def extract_spo2_features(red_signal, ir_signal, beats):
+def extract_spo2_features(red_signal, ir_signal, beats, A=110.0, B=25.0):
     """
     Compute R-ratio and estimated SpO2 per beat.
     
@@ -44,6 +44,8 @@ def extract_spo2_features(red_signal, ir_signal, beats):
     - red_signal: np.array, raw red PPG channel
     - ir_signal: np.array, raw IR PPG channel
     - beats: list of (start_idx, end_idx) tuples from peak detection
+    - A: pulsatile (AC) component of the PPG (the beat-to-beat variation).
+    - B:  baseline (DC) component of the PPG (the slowly varying tissue/skin absorption).
     
     Returns:
     - DataFrame with columns: [beat_idx, R_ratio, SpO2_est]
@@ -54,7 +56,7 @@ def extract_spo2_features(red_signal, ir_signal, beats):
         ir_seg = ir_signal[start:end]
         
         r = compute_r_ratio(red_seg, ir_seg)
-        spo2 = estimate_spo2(r)
+        spo2 = estimate_spo2(r, A, B)
         
         results.append({
             "beat_idx": i,

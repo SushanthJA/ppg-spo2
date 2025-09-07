@@ -24,7 +24,8 @@ def detect_dicrotic_notch(ppg, systolic_peaks):
 #     diastolic_peaks = []
 #     for i in range(len(notches)):
 #         rr_interval = systolic_peaks[i+1] - systolic_peaks[i]
-#         local_idx = notches[i]
+#         local_idx = None
+#         encountered_else = False
 #         search_end = systolic_peaks[i+1] - int(0.15*rr_interval) # unrealistic to have diastolic peak after this
 #         segment = ppg[notches[i]:search_end]
 
@@ -33,8 +34,12 @@ def detect_dicrotic_notch(ppg, systolic_peaks):
 #                 if segment.iloc[j+1] > segment.iloc[j]:
 #                     local_idx = j+1
 #                 else:
+#                     encountered_else = True
 #                     break
-#             dia_idx = local_idx + notches[i]
+#             if encountered_else:
+#                 dia_idx = local_idx + notches[i]
+#             else:
+#                 dia_idx = np.nan
 #             diastolic_peaks.append(dia_idx)
 #     return np.array(diastolic_peaks)
 
@@ -51,15 +56,10 @@ def detect_diastolic_peaks(ppg, notches, systolic_peaks, fs=500, min_prom=0.02):
             # take the first peak after notch
             dia_idx = peaks[0] + notches[i]
             diastolic_peaks.append(dia_idx)
+        else:
+            diastolic_peaks.append(np.nan)
 
     return np.array(diastolic_peaks)
-
-def compute_heart_rate(systolic_peaks, fs=500):
-    if len(systolic_peaks) < 2:
-        return np.nan
-    rr_intervals = np.diff(systolic_peaks) / fs  # seconds
-    hr = 60.0 / np.mean(rr_intervals)
-    return hr
 
 
 def build_feature_dataframe(ppg, fs=500):
@@ -77,29 +77,30 @@ def build_feature_dataframe(ppg, fs=500):
 
     features = []
 
-    for i in range(len(diastolic_peaks)):
-        sys_idx = systolic_peaks[i]
-        notch_idx = notches[i] if i < len(notches) else None
+    for i in range(len(notches)):  
+        sys_idx = systolic_peaks[i]          # current systolic
+        next_sys_idx = systolic_peaks[i+1]   # next systolic (for HR interval)
+        notch_idx = notches[i]
         dia_idx = diastolic_peaks[i]
-
-        if notch_idx is None:
-            continue
-
+    
         # Amplitudes
         systolic_amp = ppg[sys_idx]
-        notch_amp = ppg[notch_idx]
-        diastolic_amp = ppg[dia_idx]
-
+        notch_amp = ppg[notch_idx] if notch_idx is not None else np.nan
+        diastolic_amp = ppg[dia_idx] if not np.isnan(dia_idx) else np.nan
+    
         # Times
         systolic_time = sys_idx / fs
-        notch_time = notch_idx / fs
-        diastolic_time = dia_idx / fs
-
+        notch_time = notch_idx / fs if notch_idx is not None else np.nan
+        diastolic_time = dia_idx / fs if not np.isnan(dia_idx) else np.nan
+    
         # Derived features
-        rise_time = notch_time - systolic_time
-        pulse_width = diastolic_time - systolic_time
-        hr = compute_heart_rate(systolic_peaks, fs)
-
+        rise_time = (notch_time - systolic_time) if notch_idx is not None else np.nan
+        pulse_width = (diastolic_time - systolic_time) if not np.isnan(diastolic_time) else np.nan
+    
+        # Heart rate for this beat = interval to next systolic
+        rr_interval = (next_sys_idx - sys_idx) / fs
+        hr = 60.0 / rr_interval if rr_interval > 0 else np.nan
+    
         features.append({
             "sys_idx": sys_idx,
             "notch_idx": notch_idx,
@@ -112,7 +113,7 @@ def build_feature_dataframe(ppg, fs=500):
             "diastolic_time": diastolic_time,
             "rise_time": rise_time,
             "pulse_width": pulse_width,
-            "heart_rate_bpm": hr
+            "heart_rate": hr
         })
 
     df_features = pd.DataFrame(features)
