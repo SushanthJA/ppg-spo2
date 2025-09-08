@@ -91,7 +91,7 @@ Develop a model that predicts **SpO2 from PPG features** while being robust to s
 ## Project Structure
 
 ```
-manualoutputs\                # Extracted beat-level features and manual SpO2 estimates (per subject, per activity)
+manualoutputs\                 # Extracted beat-level features and manual SpO2 estimates (per subject, per activity)
 
 notebooks\
   EDA_01.ipynb                 # Exploratory data analysis
