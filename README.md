@@ -1,10 +1,10 @@
 # SpO2 Estimation from PPG (Photoplethysmography) Waveforms
 *Dataset Used*: https://physionet.org/content/pulse-transit-time-ppg/1.1.0/
 
-## 1. PPG Signal Preprocessing & Identifying Beats
+## 1. PPG Signal Preprocessing
 
 ### Results to be Achieved
-- Select **good quality pulses** while rejecting noise.
+- Preprocess the signal to remove noise and artifacts.
 - Prepare signals for feature extraction.
 
 ### Tasks
@@ -14,14 +14,6 @@
 2. **Bandpass Filtering**
    - Apply a 3rd-order Butterworth bandpass filter (0.75–5 Hz) to keep only physiological heart rate components and remove high-frequency noise and motion artifacts.
 
-3. **Beat Identification**
-   - Use `scipy.signal.find_peaks` to detect **systolic peaks**.
-   - Enforce a physiological minimum distance (~0.5s at 500Hz) between peaks.
-
-4. **Good Pulse Selection**
-   - Discard beats with unrealistic intervals (outliers in inter-beat intervals).
-   - Optionally use accelerometer/gyroscope/load-cell signals to flag motion-corrupted windows.
-
 ---
 
 ## 2. Pulse Waveform Feature Extraction
@@ -30,18 +22,22 @@
 Extract morphological and temporal features from each beat.
 
 ### Tasks
-1. **Identify Key Features**
+1. **Beat Identification**
+   - Use `scipy.signal.find_peaks` to detect **systolic peaks**.
+   - Enforce a physiological minimum distance (~0.5s at 500Hz) between peaks.
+
+2. **Identify Key Features**
    - **Systolic Peak**: maximum in each beat.
    - **Dicrotic Notch**: local minimum after systolic peak.
    - **Diastolic Peak**: local maximum after notch (if present).
 
-2. **Feature Computation (per beat)**
+3. **Feature Computation (per beat)**
    - Amplitude features: systolic amplitude, diastolic amplitude, notch amplitude.
    - Timing features: systolic time, notch time, diastolic time.
    - Derived metrics: rise time (foot → systolic), pulse width, inter-beat interval.
    - Heart rate: computed from consecutive peak intervals.
 
-3. **SpO2 Estimation (per beat)**
+4. **SpO2 Estimation (per beat)**
    - Use red (`pleth_1`) and infrared (`pleth_2`) PPG signals.
    - Compute the ratio-of-ratios (R):
 
