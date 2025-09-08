@@ -90,24 +90,24 @@ Develop a model that predicts **SpO2 from PPG features** while being robust to s
 
 ## Project Structure
 
-manualoutputs/                 # Extracted beat-level features and manual SpO2 estimates (per subject, per activity)
+manualoutputs\\                \# *Extracted beat-level features and manual SpO2 estimates (per subject, per activity)*
 
-notebooks/
-  EDA_01.ipynb                 # Exploratory data analysis
-  explanations.ipynb           # Detailed explanations / notes
-  ml_modelling.ipynb           # ML model training & testing experiments
-  run_pipeline.ipynb           # End-to-end manual pipeline execution
+notebooks\\
+  EDA_01.ipynb                 \# *Exploratory data analysis*
+  explanations.ipynb           \# *Detailed explanations / notes*
+  ml_modelling.ipynb           \# *ML model training & testing experiments*
+  run_pipeline.ipynb           \# *End-to-end manual pipeline execution*
 
-src/
-  build_dataset.py             # Combines extracted features + subject metadata for ML training
-  feature_extraction.py        # Detects systolic, diastolic, notch peaks & features
-  load_data.py                 # Loads raw signal data & metadata
-  manual_pipeline.py           # Builds feature DataFrames (manualoutputs/)
-  preprocess.py                # Preprocessing (filtering, DC removal, etc.)
-  spo2_estimation.py           # R-ratio SpO2 estimation
+src\\
+  build_dataset.py             \# *Combines extracted features + subject metadata for ML training*
+  feature_extraction.py        \# *Detects systolic, diastolic, notch peaks & features*
+  load_data.py                 \# *Loads raw signal data & metadata*
+  manual_pipeline.py           \# *Builds feature DataFrames (manualoutputs/)*
+  preprocess.py                \# *Preprocessing (filtering, DC removal, etc.)*
+  spo2_estimation.py           \# *R-ratio SpO2 estimation*
 
-.gitignore                     # Ignore unnecessary files
-README.md                      # Project description, setup, usage
-best_rf_model.pkl              # Saved Random Forest model (best tuned one)
-ml_dataset.csv                 # Aggregated dataset used for ML training
-rf_predictions.csv             # Predictions vs Ground Truth SpO2
+.gitignore                     \# *Ignore unnecessary files*
+README.md                      \# *Project description, setup, usage*
+best_rf_model.pkl              \# *Saved Random Forest model (best tuned one)*
+ml_dataset.csv                 \# *Aggregated dataset used for ML training*
+rf_predictions.csv             \# *Predictions vs Ground Truth SpO2*
