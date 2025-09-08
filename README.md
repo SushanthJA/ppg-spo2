@@ -27,10 +27,10 @@
 ## 2. Pulse Waveform Feature Extraction
 
 ### Results to be Achieved
-Extract morphological and temporal features from each clean beat.
+Extract morphological and temporal features from each beat.
 
 ### Tasks
-1. **Identify Key Landmarks**
+1. **Identify Key Features**
    - **Systolic Peak**: maximum in each beat.
    - **Dicrotic Notch**: local minimum after systolic peak.
    - **Diastolic Peak**: local maximum after notch (if present).
